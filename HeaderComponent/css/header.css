@@ -1,0 +1,12 @@
+#templatemo_nav_top { min-height: 40px;}
+#templatemo_nav_top * { font-size: .9em !important;}
+#templatemo_main_nav a { color: #F0E5E1;}
+#templatemo_main_nav .active { color: #FFFFFF; font-weight: bold !important;}
+#templatemo_main_nav a:hover { color: #FFFFFF; font-size: bold;}
+#templatemo_main_nav .navbar .nav-icon { margin-right: 20px;}
+#templatemo_main_nav body, ul, li, p, a, label, input, div{
+  font-weight: bold;
+}
+#logoTatiaxca a:hover{
+  color: #4D3328;
+}
