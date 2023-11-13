@@ -7,6 +7,10 @@ module.exports = {
   "./node_modules/flowbite/**/*.js",],
   theme: {
     extend: {
+      fontFamily: {
+        'helvetica': ['Helvetica Neue', 'sans-serif'],
+        'roboto': ['Roboto', 'sans-serif']
+      },
       colors: {
         'brown': {
           50: '#F0E5E1',
@@ -21,4 +25,3 @@ module.exports = {
     require('flowbite/plugin')
   ]
 }
-
