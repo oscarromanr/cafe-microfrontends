@@ -1,8 +1,18 @@
 {
-  "dependencies": {
+  "name": "cafe-microfrontends",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
     "tailwindcss": "^3.3.5"
   },
-  "scripts": {
-    "build-css": "tailwindcss build src/estilos.css -o CSS/styles.css"
+  "dependencies": {
+    "flowbite": "^2.1.1"
   }
 }
