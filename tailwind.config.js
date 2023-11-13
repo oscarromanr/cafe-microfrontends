@@ -3,8 +3,9 @@ module.exports = {
   content: [
   './*/*.html', 
   './components/**/*.{html,js}',
-  './src/**/*.{html,js}',
-  "./node_modules/flowbite/**/*.js",],
+  "./src/**/*.{html,js}",
+  "./node_modules/flowbite/**/*.js"
+  ],
   theme: {
     extend: {
       fontFamily: {
