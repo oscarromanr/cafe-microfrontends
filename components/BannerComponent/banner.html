@@ -1,79 +1,41 @@
-<link rel="stylesheet" href="../CSS/styles.css">
+<link rel="stylesheet" href="../../components/BannerComponent/css/banner.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 
-<div id="template-mo-zay-hero-carousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <div class="container">
-                <div class="row p-5">
-                    <div class="mx-auto col-lg-6 order-lg-last">
-                        <img class="img-fluid img-carrousel" src="../img/carrousel_img_01.jpg" alt="imagen">
-                    </div>
-                    <div class="col-lg-6 mb-0 d-flex align-items-center">
-                        <div class="text-align-left align-self-center">
-                            <h1 class="h1 text-titulos text-center mt-4 mb-4"><b>Café Tatiaxca</b></h1>
-                            <p class="text-center" style="font-size: 22px !important;">
-                                ¡Descubre nuestro café artesanal organico de la más alta calidad!
-                            </p>
-                            <p class="text-center" style="font-size: 22px !important;">
-                                Su cultivo es amigable con el medio ambiente, se privilegian métodos naturales para
-                                fertilizar, lo cual reduce la cantidad de ácido y aumenta la cantidad de nutrientes.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-item">
-            <div class="container">
-                <div class="row p-5">
-                    <div class="mx-auto col-lg-6 order-lg-last">
-                        <img class="img-fluid img-carrousel" src="../img/carrousel_img_02.jpg" alt="">
-                    </div>
-                    <div class="col-lg-6 mb-0 d-flex align-items-center">
-                        <div class="text-align-left align-self-center">
-                            <h1 class="h1 text-titulos text-center mt-4 mb-4"><b>Café Tatiaxca</b></h1>
-                            <p class="text-center" style="font-size: 22px !important;">
-                                ¡Descubre nuestro café artesanal organico de la más alta calidad!
-                            </p>
-                            <p class="text-center" style="font-size: 22px !important;">
-                                Su cultivo es amigable con el medio ambiente, se privilegian métodos naturales para
-                                fertilizar, lo cual reduce la cantidad de ácido y aumenta la cantidad de nutrientes.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-item">
-            <div class="container">
-                <div class="row p-5">
-                    <div class="mx-auto col-lg-6 order-lg-last">
-                        <img class="img-fluid img-carrousel" src="../img/carrousel_img_03.jpg" alt="">
-                    </div>
-                    <div class="col-lg-6 mb-0 d-flex align-items-center">
-                        <div class="text-align-left align-self-center">
-                            <h1 class="h1 text-titulos text-center mt-4 mb-4"><b>Café Tatiaxca</b></h1>
-                            <p class="text-center" style="font-size: 22px !important;">
-                                ¡Descubre nuestro café artesanal organico de la más alta calidad!
-                            </p>
-                            <p class="text-center" style="font-size: 22px !important;">
-                                Su cultivo es amigable con el medio ambiente, se privilegian métodos naturales para
-                                fertilizar, lo cual reduce la cantidad de ácido y aumenta la cantidad de nutrientes.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- This section contains the hero image and text. -->
 
-        
+<section class="relative flex items-center justify-center h-screen bg-brown-100">
+    <!-- Background image -->
+    <div class="absolute top-0 w-full h-full bg-center bg-cover"
+        style="background-image: url(../../img/carrousel_img_02.jpg);">
+        <div class="absolute top-0 w-full h-full bg-center bg-cover"
+            style="background-image: url(../../img/carrousel_img_02.jpg);">
+            <span id="blackOverlay" class="absolute w-full h-full bg-black opacity-50"></span>
+        </div>
     </div>
-    <a class="carousel-control-prev text-decoration-none w-auto ps-3" href="#template-mo-zay-hero-carousel"
-        role="button" data-bs-slide="prev">
-        <i class="fas fa-chevron-left"></i>
-    </a>
-    <a class="carousel-control-next text-decoration-none w-auto pe-3" href="#template-mo-zay-hero-carousel"
-        role="button" data-bs-slide="next">
-        <i class="fas fa-chevron-right"></i>
-    </a>
-</div>
+    <!-- End background image -->
+    <div class="container relative mx-auto">
+        <div class="flex flex-wrap items-center">
+            <!--
+                This div is used to center the text
+                and to add padding to the top and bottom
+                of the section.
+            -->
+            <div class="w-full px-4 ml-auto mr-auto text-center lg:w-6/12 font-helvetica">
+                <div class="p-12 mt-24">
+                    <h1 class="text-5xl font-bold md:text-8xl text-brown-50">
+                        Café Tatiaxca
+                    </h1>
+                    <p class="mt-5 text-2xl md:text-3xl md:mt-7 text-brown-50">
+                        ¡Descubre nuestro café artesanal orgánico de la más alta calidad!
+                    </p>
+                    <div class="flex flex-wrap justify-center mt-10 text-center font-roboto"> <!-- Added text-center class -->
+                        <a href="#about-us">
+                            <button class="px-4 py-4 mt-2 mb-2 text-2xl transition-all rounded scroll-smooth md:mr-4 bg-brown-100 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-lg">Conoce más</button>
+                        </a>
+                        <button class="px-4 py-4 mt-2 mb-2 text-2xl transition-all rounded bg-brown-100 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-lg">Contáctanos</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
