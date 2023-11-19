@@ -8,21 +8,9 @@ export class ServicioProducto {
 
     async obtenerProductos() {
         try {
-            // llamamos el inicio de sesion por ahora mientras aun no tengamos el Login
-            //await this.#user.inicioSesion('65249086a443c855443f3b38');
-            const usuario = await this.#user.obtenerUsuarioPorId('65249086a443c855443f3b38');
-            //console.log(usuario.nombre);
-            const token = this.#cookie.getCookie(usuario.nombre);
-            //console.log(token);
-            let response = await fetch(this.#urlProducto, {
-                method: "GET",
-                headers: {
-                    "Authorization": "Bearer " + token
-                }
-            });
+            let response = await fetch(this.#urlProducto);
             let json = await response.json();
-            //console.log(json.productos);
-            return json.productos;
+            return json;
         } catch (error) {
             console.log('Error al obtener productos: ', error);
             return null;
