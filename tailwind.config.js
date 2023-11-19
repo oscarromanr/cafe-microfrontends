@@ -14,6 +14,7 @@ module.exports = {
       },
       colors: {
         'brown': {
+          25: '#F9F5F3',
           50: '#F0E5E1',
           100: '#815F51',
           200: '#4D3328',
