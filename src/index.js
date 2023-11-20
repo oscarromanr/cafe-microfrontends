@@ -6,6 +6,7 @@ import { FeaturedProduct } from "../components/FeaturedComponent/featuredProduct
 //import { Producto } from "../components/ProductoComponent/producto.js";
 import { Productos } from "../components/ProductosComponent/productos.js";
 import { Login } from "../components/LoginComponent/login.js";
+import { Registro } from "../components/RegistrarComponent/registro.js";
 
 window.customElements.define('header-info', Header);
 window.customElements.define('banner-info', Banner);
@@ -15,3 +16,4 @@ window.customElements.define('featured-info', FeaturedProduct);
 //window.customElements.define('product-info', Producto);
 window.customElements.define('catalogo-info', Productos);
 window.customElements.define('inicio-sesion', Login);
+window.customElements.define('registro-usuario', Registro);

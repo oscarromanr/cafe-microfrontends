@@ -63,4 +63,23 @@ export class ServicioUsuario {
             return null;
         }
     }
+
+    async crearUsuario(nombre, email, password, rol, calle, numerocasa, colonia, telefono){
+        try {
+            const usuarioData = { nombre, email, password, rol, calle, numerocasa, colonia, telefono }
+            console.log(usuarioData)
+            let response = await fetch(this.#urlUsuario, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(usuarioData)
+            });
+            let json = await response.json();
+            return json;
+        } catch (error) {
+            console.log('Error al crear usuario: ', error);
+            return null;
+        }
+    }
 }
