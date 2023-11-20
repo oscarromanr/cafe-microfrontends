@@ -31,4 +31,36 @@ export class ServicioUsuario {
             return null;
         }
     }
+
+    async obtenerUsuarios(){
+        try {
+            let response = await fetch(this.#urlUsuario);
+            let json = await response.json();
+            console.log(json);
+            return json.usuarios;
+        } catch (error) {
+            console.log('Error al obtener usuarios', error);
+            return null;
+        }
+    }
+
+    async verificarUsuario(nombre, password){
+        try {
+            const usuarios = await this.obtenerUsuarios();
+            console.log(usuarios)
+            for (const user of usuarios) {
+                if(user.nombre === nombre){
+                    if (user.password === password){
+                        return user;
+                    } else {
+                        return 'La contraseña no coincide';
+                    }
+                }
+            }
+            return 'El nombre de usuario no existe';
+        } catch (error) {
+            console.log('Error al verificar usuario: ', error);
+            return null;
+        }
+    }
 }
