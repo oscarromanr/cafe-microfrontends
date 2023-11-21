@@ -17,7 +17,7 @@ export class Login extends HTMLElement {
             .then(html => {
                 shadow.innerHTML += html;
             })
-            .catch(error => console.error('error Loading HTML: ', error));
+            .catch(error => console.error('Error loading HTML: ', error));
         this.#addEventListener();
     }
 
@@ -26,6 +26,18 @@ export class Login extends HTMLElement {
         form.addEventListener('submit', (event) => {
             event.preventDefault(); // Evita que el formulario se envíe automáticamente
             this.#verifyUser();
+        });
+
+        // Toggle password visibility functionallity
+
+        const togglePassword = this.shadowRoot.getElementById('togglePassword');
+        const password = this.shadowRoot.getElementById('password');
+
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+            this.querySelector('i').classList.toggle('fa-eye');
         });
     }
 
