@@ -42,7 +42,7 @@ export class Productos extends HTMLElement {
                         </div>
                     </div>
                 </div>       
-                <div class="z-10 p-8 w-full bg-brown-25">
+                <div class="z-10 p-8 w-full bg-brown-400">
                     <div class="mb-4 w-full max-w-5xl md:p-6 mx-auto flex flex-col md:flex-row items-center md:gap-y-20 gap-x-4 mt-4 justify-end">
                         <div class="flex flex-col md:flex-row items-center">
                             <label for="filterBy" class="mr-2 md:pb-1 pb-3">Filtrar por:</label>
@@ -65,12 +65,12 @@ export class Productos extends HTMLElement {
                         </div>
 
                         <button id="applyFilter" class="bg-brown-100 duration-100 transition hover:bg-brown-300 text-brown-50 hover:text-white px-8 py-2 rounded-md mt-4 md:mt-0">Aplicar filtro</button>
-                    </div>
+                        </div>
 
-                    <section class="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-20 gap-x-14 mt-10 mb-5">
-                        ${this.filteredProductos.map(producto => this.#renderCard(producto)).join('')}
-                    </section>
-                </div>
+                        <section class="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-12 gap-x-14 mt-10 mb-5">
+                            ${this.filteredProductos.length > 0 ? this.filteredProductos.map(producto => this.#renderCard(producto)).join('') : '<p class="text-brown-300 font-helvetica md:text-xl text-lg">No se encontraron productos...</p>'}
+                        </section>
+                    </div>
 
                 <div class="container flex flex-col items-center justify-between max-w-screen-xl mx-auto md:flex-row bg-brown-50">
                     <div class="flex flex-col justify-between mb-8 md:mb-0 md:w-fit">
@@ -115,7 +115,7 @@ export class Productos extends HTMLElement {
 
     #renderCard(producto) {
         return `
-            <div class="w-72 bg-white shadow-md rounded-xl duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="w-72 bg-brown-25 shadow-md rounded-xl duration-300 hover:scale-105 hover:shadow-xl">
                 <a href="#">
                     <img src="../../img/${producto.imagenurl}" alt="Producto" class="h-80 w-72 object-cover rounded-t-xl" />
                     <div class="px-4 py-3 w-72 font-helvetica">
@@ -123,12 +123,14 @@ export class Productos extends HTMLElement {
                         <p class="text-lg font-bold text-brown-300 truncate block capitalize">${producto.nombre}</p>
                         <div class="flex items-center">
                             <p class="text-lg font-semibold text-brown-300 cursor-auto my-3">$${producto.precio}</p>
-                            <div class="ml-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bag-plus" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
-                                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
-                                </svg>
-                            </div>
+                            
+                            <a id="addToCart" href="index.html" class="text-brown-25 shadow-md hover:text-white rounded ml-auto hover:scale-105 duration-150 bg-brown-100 hover:bg-brown-300"> 
+                                <div class="">
+                                    <span  class="right-4">
+                                        <i class=" p-4 fas fa-cart-plus fa-lg"></i>
+                                    </span>
+                                 </div>
+                            </a>
                         </div>
                     </div>
                 </a>
