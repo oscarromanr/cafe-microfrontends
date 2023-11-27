@@ -10,6 +10,7 @@ import { Register } from "../components/RegisterComponent/register.js";
 import { Contact } from "../components/ContactComponent/contact.js";
 import { LoginAdmin} from "../components/LoginAdminComponent/login-admin.js";
 import { AdminProducts } from "../components/AdminProducts/adminProduct.js";
+import { AdminUsersComponent } from "../components/AdminUsersComponent/admin-users.js";
 
 window.customElements.define('header-info', Header);
 window.customElements.define('banner-info', Banner);
@@ -23,3 +24,4 @@ window.customElements.define('register-user', Register);
 window.customElements.define('contact-info', Contact);
 window.customElements.define('login-admin', LoginAdmin);
 window.customElements.define('catalogo-admin-info', AdminProducts);
+window.customElements.define('admin-users-info', AdminUsersComponent);
