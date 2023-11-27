@@ -29,7 +29,6 @@ export class Productos extends HTMLElement {
         shadow.innerHTML = `
             <link rel="stylesheet" href="../../components/ProductosComponent/css/productos.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 
             <section class="bg-brown-50">
                 <div class="container flex flex-col p-12 items-center justify-between max-w-screen-xl mx-auto md:flex-row bg-brown-50">
