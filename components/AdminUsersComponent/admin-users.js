@@ -1,6 +1,6 @@
 import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
 
-export class AdminUsersComponent extends HTMLElement {
+export class AdminUsers extends HTMLElement {
     #servicio = new ServicioUsuario();
     constructor() {
         super();
