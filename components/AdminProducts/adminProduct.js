@@ -47,7 +47,7 @@ export class AdminProducts extends HTMLElement {
                     </table>
                 </div>
                 <div class="mt-6 items-center mb-4 w-full max-w-6xl mx-auto">
-                    <a class="bg-brown-100 font-medium text-lg font-helvetica p-4 transition-all rounded scroll-smooth md:mr-4 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-lg" href=""><i class="fa fa-shopping-cart"></i> Registrar nuevo producto</a>
+                    <a class="bg-brown-100 font-medium text-lg font-helvetica p-4 transition-all rounded scroll-smooth md:mr-4 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-lg" href="../../src/admin-register-product.html"><i class="fa fa-shopping-cart"></i> Registrar nuevo producto</a>
                 </div>
             </div>
         </section>

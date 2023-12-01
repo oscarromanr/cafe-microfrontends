@@ -30,6 +30,7 @@ export class ServicioProducto {
 
     async crearProducto(productoData) {
         try {
+            const token = this.#cookie.getCookie('Cafe')
             let response = await fetch(this.#urlProducto, {
                 method: "POST",
                 headers: {
@@ -38,7 +39,7 @@ export class ServicioProducto {
                 },
                 body: JSON.stringify(productoData)
             });
-            let json = response.json();
+            let json = await response.json();
             return json;
         } catch (error) {
             console.log('Error al crear producto: ', error);
