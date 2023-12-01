@@ -7,13 +7,16 @@ export class ServicioUsuario {
     async inicioSesion(usuarioId) {
         try {
             let response = await fetch(this.#urlUsuario + usuarioId, {
-                method: "POST"
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
             });
             let json = await response.json();
-            //console.log(json.token);
+            console.log(json);
             const user = await this.obtenerUsuarioPorId(usuarioId);
             //console.log(user.nombre);
-            this.#cookie.setCookie(user.nombre, json.token, 1);
+            this.#cookie.setCookie('Cafe', json.token, 1);
             return json;
         } catch (error) {
             console.log('Error al iniciar sesion', error);

@@ -56,7 +56,7 @@ export class Login extends HTMLElement {
             }
             if (typeof respuesta === 'object' && respuesta !== null) {
                 alert('Bienvenido');
-                this.#servicio.inicioSesion(respuesta.id);
+                this.#servicio.inicioSesion(respuesta._id);
                 window.location.href = `../../src/index.html`;
             }
         } else {
