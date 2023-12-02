@@ -12,6 +12,8 @@ import { LoginAdmin} from "../components/LoginAdminComponent/login-admin.js";
 import { AdminProducts } from "../components/AdminProducts/adminProduct.js";
 import { AdminUsers } from "../components/AdminUsersComponent/admin-users.js";
 import { ProductDetails } from "../components/ProductsDetailComponent/product-detail.js";
+import { Cart } from "../components/CartComponent/cart.js";
+import { UserProfile} from "../components/UserProfileComponent/user-profile.js";
 
 window.customElements.define('header-info', Header);
 window.customElements.define('banner-info', Banner);
@@ -27,3 +29,5 @@ window.customElements.define('login-admin', LoginAdmin);
 window.customElements.define('catalogo-admin-info', AdminProducts);
 window.customElements.define('admin-users-info', AdminUsers);
 window.customElements.define('product-detail-info', ProductDetails);
+window.customElements.define('cart-info', Cart);
+window.customElements.define('user-profile-info', UserProfile);
