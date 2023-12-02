@@ -1,4 +1,6 @@
 import { ServicioProducto } from "../../Servicio/productoServicio.js";
+import { LocalStorageService } from "../../Servicio/LocalStorageService.js";
+import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
 
 export class Productos extends HTMLElement {
     #servicio = new ServicioProducto();
@@ -10,22 +12,22 @@ export class Productos extends HTMLElement {
 
     constructor() {
         super();
+    }
+
+    connectedCallback() {
+        const shadow = this.attachShadow({ mode: "open" });
+
         this.productos = [];
         this.filteredProductos = [];
 
         this.#servicio.obtenerProductos().then(response => {
             this.productos = response.productos;
             this.filteredProductos = [...this.productos]; 
-            this.#render();
+            this.#render(shadow);
         });
     }
 
-    connectedCallback() {
-        const shadow = this.attachShadow({ mode: "open" });
-    }
-
-    #render() {
-        const shadow = this.shadowRoot;
+    #render(shadow) {
         shadow.innerHTML = `
             <link rel="stylesheet" href="../../components/ProductosComponent/css/productos.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
@@ -67,7 +69,13 @@ export class Productos extends HTMLElement {
                         </div>
 
                         <section class="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-12 gap-x-14 mt-10 mb-5">
-                            ${this.filteredProductos.length > 0 ? this.filteredProductos.map(producto => this.#renderCard(producto)).join('') : '<p class="text-brown-300 font-helvetica md:text-xl text-lg">No se encontraron productos...</p>'}
+                            ${this.filteredProductos.length > 0 ? this.filteredProductos.map(producto => this.#renderCard(producto)).join('') : 
+                                `
+                                    <p class="text-brown-100 font-helvetica md:text-2xl text-xl">
+                                        No se encontraron productos.
+                                    </p>
+                                `
+                            }
                         </section>
                     </div>
 
@@ -110,12 +118,14 @@ export class Productos extends HTMLElement {
         applyFilterButton.addEventListener('click', () => {
             this.#applyFilter();
         });
+
+        this.#initButtons(shadow);
     }
 
     #renderCard(producto) {
         return `
             <div class="w-72 bg-brown-25 shadow-md rounded-xl duration-300 hover:scale-105 hover:shadow-xl">
-                <a href="#">
+                <a href="product-detail.html?id=${producto._id}">
                     <img src="../../img/${producto.imagenurl}" alt="Producto" class="h-80 w-72 object-cover rounded-t-xl" />
                     <div class="px-4 py-3 w-72 font-helvetica">
                         <span class="text-brown-300 text-opacity-70 mr-3 uppercase text-xs">${producto.categoria}</span>
@@ -123,12 +133,10 @@ export class Productos extends HTMLElement {
                         <div class="flex items-center">
                             <p class="text-lg font-semibold text-brown-300 cursor-auto my-3">$${producto.precio}</p>
                             
-                            <a id="addToCart" href="index.html" class="text-brown-25 shadow-md hover:text-white rounded ml-auto hover:scale-105 duration-150 bg-brown-100 hover:bg-brown-300"> 
-                                <div class="">
-                                    <span  class="right-4">
-                                        <i class=" p-4 fas fa-cart-plus fa-lg"></i>
-                                    </span>
-                                 </div>
+                            <a class="text-brown-25 hover:cursor-pointer shadow-md hover:text-white btnAddToCart rounded ml-auto hover:scale-105 duration-150 bg-brown-100 hover:bg-brown-300"> 
+                                <span class="">
+                                    <i class="py-4 px-3 fas fa-cart-plus fa-lg"></i>
+                                </span>
                             </a>
                         </div>
                     </div>
@@ -138,25 +146,57 @@ export class Productos extends HTMLElement {
     }
 
     #applyFilter() {
-    let filteredProductos = [...this.productos];
+        let filteredProductos = [...this.productos];
 
-    if (this.#filterOptions.price === 'asc') {
-        filteredProductos.sort((a, b) => a.precio - b.precio);
-    } else if (this.#filterOptions.price === 'desc') {
-        filteredProductos.sort((a, b) => b.precio - a.precio);
-    } else if (this.#filterOptions.name === 'asc') {
-        filteredProductos.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    } else if (this.#filterOptions.name === 'desc') {
-        filteredProductos.sort((a, b) => b.nombre.localeCompare(a.nombre));
+        if (this.#filterOptions.price === 'asc') {
+            filteredProductos.sort((a, b) => a.precio - b.precio);
+        } else if (this.#filterOptions.price === 'desc') {
+            filteredProductos.sort((a, b) => b.precio - a.precio);
+        } else if (this.#filterOptions.name === 'asc') {
+            filteredProductos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        } else if (this.#filterOptions.name === 'desc') {
+            filteredProductos.sort((a, b) => b.nombre.localeCompare(a.nombre));
+        }
+
+        if (this.#filterOptions.category !== '') {
+            filteredProductos = filteredProductos.filter(producto => producto.categoria === this.#filterOptions.category);
+        }
+
+        this.filteredProductos = filteredProductos;
+        this.#render(this.shadowRoot);
     }
 
-    if (this.#filterOptions.category !== '') {
-        filteredProductos = filteredProductos.filter(producto => producto.categoria === this.#filterOptions.category);
-    }
+    #initButtons(shadow) {
+        const btnAddToCart = shadow.querySelectorAll('.btnAddToCart');
+        btnAddToCart.forEach((btnAdd, index) => {
+            btnAdd.addEventListener('click', () => {
+                const cart = JSON.parse(LocalStorageService.getItem('carrito')) || [];
+                const product = this.filteredProductos[index];
+                const existingProduct = cart.find(item => item.id === product._id);
+                const stock = product.stock;
 
-    this.filteredProductos = filteredProductos;
-    this.#render();
+                if (existingProduct && existingProduct.cantidad < stock) {
+                    existingProduct.cantidad++;
+                } else if (!existingProduct && stock > 0) {
+                    cart.push({ id: product._id, cantidad: 1 });
+                } else {
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: "No hay suficiente stock",
+                        icon: 'error',
+                        confirmButtonColor: '#815F51',
+                        background: '#F9F5F3',
+                        iconColor: '#815F51',
+                        color: '#36241C',
+                        confirmButtonText: 'Cerrar',
+                        confirmButtonAriaLabel: 'Cerrar'
+                    });
+                    return;
+                }
+                LocalStorageService.setItem('carrito', JSON.stringify(cart));
+                window.location.href = '../../src/cart.html';
+            });
+        });
     }
-
     
 }

@@ -21,7 +21,7 @@ export class ServicioProducto {
         try {
             let response = await fetch(this.#urlProducto + productoId);
             let json = await response.json();
-            return json;
+            return json.producto;
         } catch (error) {
             console.log('Error al obtener producto: ', error);
             return null;
