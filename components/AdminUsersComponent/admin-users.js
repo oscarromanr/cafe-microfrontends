@@ -1,4 +1,5 @@
 import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
+import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
 
 export class AdminUsers extends HTMLElement {
     #servicio = new ServicioUsuario();
@@ -34,6 +35,7 @@ export class AdminUsers extends HTMLElement {
                     <table class="p-8 bg-brown-50 w-full max-w-6xl md:p-6 mx-auto table-auto rounded text-lg mb-16" id="tabla">
                         <thead>
                             <tr>
+                                <th class="py-2 px-2 text-left border-b bg-brown-100 text-brown-50">ID</th>
                                 <th class="py-2 px-4 text-left border-b bg-brown-100 text-brown-50">Nombre</th>
                                 <th class="py-2 px-4 text-left border-b bg-brown-100 text-brown-50">Correo electrónico</th>
                                 <th class="py-2 px-4 text-left border-b bg-brown-100 text-brown-50">Calle</th>
@@ -60,13 +62,61 @@ export class AdminUsers extends HTMLElement {
                 usuarios.forEach(element => {
                     this.#despliegaUsuario(table, tbody, element);
                 });
+            }).then(() => {
+                this.#eliminarUsuario()
             })
+    }
+
+    #eliminarUsuario(){
+        const btnEliminar = this.shadowRoot.querySelectorAll('.bg-red-600');
+        btnEliminar.forEach((boton) => {
+            boton.addEventListener('click', () => {
+                const fila = boton.closest('tr');
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¿Deseas eliminar este usuario?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#815F51',
+                    cancelButtonColor: '#E53E3E',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar',
+                    background: '#F9F5F3',
+                    iconColor: '#815F51',
+                    color: '#36241C'
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        const id = fila.querySelector('#idUser').textContent
+                        this.#servicio.eliminarUsuario(id)
+                        Swal.fire({
+                            title: 'Usuario eliminado',
+                            text: "El usuario se elimino exitosamente",
+                            icon: 'success',
+                            confirmButtonColor: '#815F51',
+                            background: '#F9F5F3', 
+                            iconColor: '#815F51',
+                            color: '#36241C',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar',
+                            cancelButtonColor: '#E53E3E',
+                            confirmButtonText: 'Volver al menu',
+                            confirmButtonAriaLabel: 'Volver a la lista de usuarios'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'admin-index.html';
+                            }
+                        })
+                    }
+                })
+            })
+        })
     }
 
     #despliegaUsuario(table, tbody, usuario) {
         tbody.innerHTML +=
             `   
             <tr class="bg-brown-25 text-brown-300 font-roboto">
+            <td id="idUser" class="py-2 px-2 border-b">${usuario._id}</td>
             <td class="py-2 px-4 border-b">${usuario.nombre}</td>
             <td class="py-2 px-4 border-b">${usuario.email}</td>
             <td class="py-2 px-4 border-b">${usuario.calle}</td>

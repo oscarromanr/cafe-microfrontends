@@ -1,4 +1,5 @@
 import { ServicioProducto } from "../../Servicio/productoServicio.js";
+import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
 
 export class AdminProducts extends HTMLElement {
     #servicio = new ServicioProducto();
@@ -34,6 +35,7 @@ export class AdminProducts extends HTMLElement {
                     <table class="p-8 bg-brown-50 mb-4 w-full max-w-6xl md:p-6 mx-auto table-auto rounded text-lg" id="tabla">
                         <thead>
                             <tr>
+                                <th class="py-1 px-2 text-left border-b bg-brown-100 text-brown-50">ID</th>
                                 <th class="py-2 px-4 text-left border-b bg-brown-100 text-brown-50">Nombre</th>
                                 <th class="py-2 px-4 text-left border-b bg-brown-100 text-brown-50">Imágen</th>
                                 <th class="py-2 px-4 text-left border-b bg-brown-100 text-brown-50">Descripción</th>
@@ -64,16 +66,64 @@ export class AdminProducts extends HTMLElement {
                 productos.forEach(element => {
                     this.#despliegaProducto(table, tbody, element);
                 });
+            }).then(() => {
+                this.#eliminarProducto();
             })
+    }
+
+    #eliminarProducto() {
+        const btnEliminar = this.shadowRoot.querySelectorAll('.bg-red-600');
+        btnEliminar.forEach((boton) => {
+            boton.addEventListener('click', () => {
+                const fila = boton.closest('tr');
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¿Deseas eliminar este producto?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#815F51',
+                    cancelButtonColor: '#E53E3E',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar',
+                    background: '#F9F5F3',
+                    iconColor: '#815F51',
+                    color: '#36241C'
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        const id = fila.querySelector('#idProduct').textContent
+                        this.#servicio.eliminarProducto(id)
+                        Swal.fire({
+                            title: 'Producto eliminado',
+                            text: "El producto se elimino exitosamente",
+                            icon: 'success',
+                            confirmButtonColor: '#815F51',
+                            background: '#F9F5F3', 
+                            iconColor: '#815F51',
+                            color: '#36241C',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar',
+                            cancelButtonColor: '#E53E3E',
+                            confirmButtonText: 'Volver al menu',
+                            confirmButtonAriaLabel: 'Volver al catalogo'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'admin-index.html';
+                            }
+                        })
+                    }
+                })
+            })
+        })
     }
 
     #despliegaProducto(table, tbody, producto) {
         tbody.innerHTML +=
             `   
             <tr class="bg-brown-25 text-brown-300 font-roboto">
-            <td class="py-2 px-4 border-b">${producto.nombre}</td>
+            <td id="idProduct" class="py-1 px-2 border-b">${producto._id}</td>
+            <td id="name" class="py-2 px-4 border-b">${producto.nombre}</td>
             <td class="py-2 px-4 border-b">
-                <img src="../../img/${producto.imagenurl}" alt="Imágen del Producto"
+                <img src="../../img/${producto.imagenurl}" alt="${producto.nombre}"
                    class="w-21 object-cover rounded-lg">
             </td>
             <td class="py-2 px-4 border-b">${producto.descripcion}</td>
@@ -81,10 +131,10 @@ export class AdminProducts extends HTMLElement {
             <td class="py-2 px-4 border-b">$${producto.precio}</td>
             <td class="py-2 px-4 border-b">${producto.stock}</td>
             <td class="py-2 px-4 border-b">
-                <button class="bg-brown-100 font-medium font-helvetica p-2 transition-all rounded scroll-smooth text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-lg">Actualizar</button>
+                <a id="btn-actualizar" href="admin-update-product.html?id=${producto._id}" class="bg-brown-100 font-medium font-helvetica p-2 transition-all rounded scroll-smooth text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-lg">Actualizar</a>
             </td>
             <td class="py-2 px-4 border-b">
-               <button class="bg-red-600 font-medium font-helvetica p-2 transition-all rounded scroll-smooth text-brown-25 hover:bg-red-900 hover:text-white hover:drop-shadow-lg">Eliminar</button>
+               <button id="btn-eliminar" class="bg-red-600 font-medium font-helvetica p-2 transition-all rounded scroll-smooth text-brown-25 hover:bg-red-900 hover:text-white hover:drop-shadow-lg">Eliminar</button>
             </td>
 
             </tr>
