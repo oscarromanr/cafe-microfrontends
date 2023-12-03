@@ -49,6 +49,7 @@ export class ServicioProducto {
 
     async actualizarProducto(productoId, productoData) {
         try {
+            const token = this.#cookie.getCookie('Cafe')
             let response = await fetch(this.#urlProducto + productoId, {
                 method: "PUT",
                 headers: {
@@ -57,7 +58,7 @@ export class ServicioProducto {
                 },
                 body: JSON.stringify(productoData)
             });
-            let json = response.json();
+            let json = await response.json();
             return json;
         } catch (error) {
             console.log('Error al actualizar producto: ', error);
@@ -65,16 +66,18 @@ export class ServicioProducto {
         }
     }
 
-    async eliminarProducto(productoId) {
+    async eliminarProducto(id) {
         try {
-            let response = await fetch(this.#urlProducto + productoId, {
+            const token = this.#cookie.getCookie('Cafe')
+            let response = await fetch(this.#urlProducto + id, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + token
                 }
             });
-            let json = response.json();
+            let json = await response.json();
+            console.log(json)
             return json;
         } catch (error) {
             console.log('Error al actualizar producto: ', error);
