@@ -19,9 +19,10 @@ export class Header extends HTMLElement {
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 
             <div class="fixed z-10 w-full shadow-xl bg-brown-100">
-                <nav class="container flex items-center justify-between max-w-screen-xl py-4 mx-auto">
-                    <a href="index.html" class="flex items-center ml-6 space-x-3 cursor-pointer rtl:space-x-reverse">
-                        <img src="../../img/logoTatiaxcaNew.png" class="h-14" alt="Logo">
+                <nav class="container flex items-center justify-between max-w-screen-xl py-2 md:py-4 mx-auto">
+                    <a href="../../src/index.html" class="flex items-center ml-6 space-x-3 cursor-pointer rtl:space-x-reverse">
+                        <img src="../../img/logoTatiaxcaNew.svg" class="h-14 hidden md:block flex-shrink-0" alt="Logo" id="logo">
+                        <img src="../../img/logoTatiaxcaMini.svg" class="h-14 md:hidden" alt="Logo" id="logoMini">
                     </a>
                     <div class="items-center hidden md:flex">
                         <a href="../../src/index.html"
@@ -64,16 +65,16 @@ export class Header extends HTMLElement {
                         <a class="relative px-4 text-xl transition-all duration-200 hover:scale-110 text-brown-50 hover:text-white" href="">
                             <i class="fa fa-fw fa-shopping-bag"></i>
                         </a>
-                        <a class="relative px-4 text-xl transition-all duration-200 hover:scale-110 text-brown-50 hover:text-white" href="../../src/userpage.html">
+                        <a class="relative px-4 text-xl transition-all duration-200 hover:scale-110 text-brown-50 hover:text-white" href="../../src/login.html">
                             <i class="fa fa-fw fa-user"></i>
                         </a>
                     </div>
                     
                     <div class="md:hidden">
-                        <button id="toggleBtn" class="p-2 px-4 mr-6 rounded-md text-3xl bg-brown-100 text-brown-50 transition-all duration-150 focus:outline-4 hover:text-white outline outline-0 outline-brown-25">
+                        <button id="toggleBtn" class="p-2 mr-4 rounded-md text-3xl bg-brown-100 text-brown-50 transition-all duration-150 focus:outline-4 hover:text-white outline outline-0 outline-brown-25">
                             <i class="fa fa-fw fa-bars"></i>
                         </button>
-                        <div id="mobileMenu" class="hidden absolute top-16 right-0 mt-2 py-2 w-72 bg-brown-200 rounded-md shadow-lg">
+                        <div id="mobileMenu" class="hidden absolute top-14 right-0 mt-2 py-2 w-72 bg-brown-200 rounded-md shadow-lg">
                             <a href="../../src/index.html"
                                 class="block px-4 py-2 text-sm text-brown-25 hover:bg-brown-300 hover:text-white transition-all duration-150">Inicio</a>
                             <a href="../../src/index.html#about-us"
@@ -100,7 +101,7 @@ export class Header extends HTMLElement {
                                     class="text-sm text-brown-25 hover:scale-110 hover:text-white transition-all duration-150 px-2">
                                     <i class="fa fa-fw fa-shopping-bag"></i>
                                 </a>
-                                <a href="../../src/userpage.html"
+                                <a href="../../src/login.html"
                                     class="text-sm text-brown-25 hover:scale-110 hover:text-white transition-all duration-150 px-2">
                                     <i class="fa fa-fw fa-user"></i>
                                 </a>
@@ -110,6 +111,24 @@ export class Header extends HTMLElement {
                 </nav>
             </div>
         `;
+
+        const logo = shadow.getElementById('logo');
+        const logoMini = shadow.getElementById('logoMini');
+
+        const mediaQuery = window.matchMedia('(max-width: 860px)');
+
+        const handleMediaQuery = (mquery) => {
+            if (mquery.matches) {
+                logo.style.display = 'none';
+                logoMini.style.display = 'block';
+            } else {
+                logo.style.display = 'block';
+                logoMini.style.display = 'none';
+            }
+        };
+
+        handleMediaQuery(mediaQuery);
+        mediaQuery.addEventListener('change', handleMediaQuery);
     }
 
     #addToggleFunctionality(shadow) {

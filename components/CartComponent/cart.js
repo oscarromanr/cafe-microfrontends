@@ -59,7 +59,7 @@ export class Cart extends HTMLElement {
                     </div>
             </div>       
         
-            <div class="mx-auto bg-brown-400 w-full pb-72" id="cartDiv">
+            <div class="mx-auto bg-brown-400 w-full md:pb-72" id="cartDiv">
                 <div class="bg-brown-400 pt-8 md:max-w-7xl mx-auto">
                     <div class="mx-auto max-w-6xl justify-center px-6 md:flex md:space-x-6 xl:px-0 pb-8">
                     <div class="rounded-lg md:w-2/3">
@@ -90,7 +90,7 @@ export class Cart extends HTMLElement {
 
         if (products.length > 2) {
             const cartDiv = shadow.querySelector('#cartDiv');
-            cartDiv.classList.remove('pb-72');
+            cartDiv.classList.remove('md:pb-72');
         }
     }
 
@@ -108,8 +108,8 @@ export class Cart extends HTMLElement {
                     <h2 class="text-lg md:text-xl font-bold ">${product.nombre}</h2>
                     <p class="mt-1 text-md md:text-md">${product.categoria}</p>
                     <p class="mt-1 text-md md:text-md">Stock: ${product.stock}</p>
-                    <p class="mt-4 text-md md:text-md"><strong>Precio:</strong> $${product.precio.toFixed(2)} MXN</p>
-                    <p class="mt-1 text-md md:text-md"><strong>Total:</strong> $${product.precioTotal.toFixed(2)} MXN</p>
+                    <p class="mt-4 text-md md:text-md"><strong>Precio:</strong> $${product.precio.toFixed(2)}</p>
+                    <p class="mt-1 text-md md:text-md"><strong>Total:</strong> $${product.precioTotal.toFixed(2)}</p>
                 </div>
                 <div class="mt-4 flex justify-between sm:space-y-6 sm:mt-0 sm:block sm:space-x-6">
                     <div class="flex items-center border-gray-100">
@@ -138,17 +138,17 @@ export class Cart extends HTMLElement {
         return `
         <div class="mb-2 flex justify-between">
             <p class="text-brown-300 text-md md:text-lg">Subtotal</p>
-            <p class="text-brown-300 text-md md:text-lg">$${subtotal.toFixed(2)} MXN</p>
+            <p class="text-brown-300 text-md md:text-lg">$${subtotal.toFixed(2)}</p>
         </div>
         <div class="flex justify-between">
             <p class="text-brown-300 text-md md:text-lg">IVA</p>
-            <p class="text-brown-300 text-md md:text-lg">$${iva.toFixed(2)} MXN</p>
+            <p class="text-brown-300 text-md md:text-lg">$${iva.toFixed(2)}</p>
         </div>
         <div class="w-full my-3 border-t border-brown-300 text-brown-300 opacity-75"></div>
             <div class="flex justify-between">
                 <p class="text-lg md:text-xl font-bold text-brown-300">Total</p>
                 <div class="">
-                    <p class="mb-1 text-lg md:text-xl font-bold text-brown-300">$${total.toFixed(2)} MXN</p>
+                    <p class="mb-1 text-lg md:text-xl font-bold text-brown-300">$${total.toFixed(2)}</p>
                 </div>
             </div>
             <button class="mt-6 w-full rounded-md bg-brown-100 py-1.5 font-medium text-brown-25 transition-all duration-150 hover:text-white hover:bg-brown-300"><i class="fas fa-bag-shopping mr-2 text-white"></i>Comprar ahora</button>
@@ -160,17 +160,17 @@ export class Cart extends HTMLElement {
         return `
         <div class="mb-2 flex justify-between">
             <p class="text-brown-300 text-md md:text-lg">Subtotal</p>
-            <p class="text-brown-300 text-md md:text-lg">$0 MXN</p>
+            <p class="text-brown-300 text-md md:text-lg">$0</p>
         </div>
         <div class="flex justify-between">
             <p class="text-brown-300 text-md md:text-lg">IVA</p>
-            <p class="text-brown-300 text-md md:text-lg">$0 MXN</p>
+            <p class="text-brown-300 text-md md:text-lg">$0</p>
         </div>
         <div class="w-full my-3 border-t border-brown-300 text-brown-300 opacity-75"></div>
             <div class="flex justify-between">
                 <p class="text-lg md:text-xl font-bold text-brown-300">Total</p>
                 <div class="">
-                    <p class="mb-1 text-lg md:text-xl font-bold text-brown-300">$0 MXN</p>
+                    <p class="mb-1 text-lg md:text-xl font-bold text-brown-300">$0</p>
                 </div>
             </div>
         </div>

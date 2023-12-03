@@ -11,7 +11,6 @@ export class ServicioCookie {
     getCookie(name) {
         const cookieName = name + "=";
         const decodedCookie = decodeURIComponent(document.cookie);
-        console.log(decodedCookie);
         const cookieArray = decodedCookie.split(';');
 
         for (let i = 0; i < cookieArray.length; i++) {
@@ -25,5 +24,21 @@ export class ServicioCookie {
         }
 
         return null;
+    }
+
+    deleteCookie(name) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    }
+
+    decodeJwt(token){
+        const tokenParts = token.split('.');
+        var decodedPayload = null;
+
+        if (tokenParts.length === 3) {
+            const payload = tokenParts[1];
+            decodedPayload = atob(payload);
+        }
+
+        return JSON.parse(decodedPayload);
     }
 }

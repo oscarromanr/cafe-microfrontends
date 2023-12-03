@@ -1,13 +1,19 @@
-// import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
+import { ServicioAdministrador } from "../../Servicio/adminServicio.js";
+import { ServicioCookie } from "../../Servicio/cookieServicio.js";
+import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
+
 
 export class LoginAdmin extends HTMLElement {
-    // #servicio = new ServicioUsuario();
+    #servicio = new ServicioAdministrador();
+    #cookie = new ServicioCookie();
+    
     constructor() {
         super();
     }
 
-    connectedCallback() {
+    async connectedCallback() {
         const shadow = this.attachShadow({ mode: "open" });
+        await this.#checkCookie();
         this.#render(shadow);
     }
 
@@ -18,20 +24,18 @@ export class LoginAdmin extends HTMLElement {
                 shadow.innerHTML += html;
             })
             .catch(error => console.error('Error loading HTML: ', error));
-        this.#addEventListener();
+        this.#addEventListener(shadow);
     }
 
-    #addEventListener() {
-        // const form = this.shadowRoot.querySelector('form');
-        // form.addEventListener('submit', (event) => {
-        //     event.preventDefault(); // Evita que el formulario se envíe automáticamente
-        //     this.#verifyUser();
-        // });
+    #addEventListener(shadow) {
+        const form = shadow.querySelector('form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Evita que el formulario se envíe automáticamente
+            this.#login(shadow);
+        });
 
-        // Toggle password visibility functionallity
-
-        const togglePassword = this.shadowRoot.getElementById('togglePassword');
-        const password = this.shadowRoot.getElementById('password');
+        const togglePassword = shadow.getElementById('togglePassword');
+        const password = shadow.getElementById('password');
 
         togglePassword.addEventListener('click', function () {
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -41,26 +45,53 @@ export class LoginAdmin extends HTMLElement {
         });
     }
 
-    // async #verifyUser() {
-    //     const name = this.shadowRoot.querySelector('#name').value;
-    //     const password = this.shadowRoot.querySelector('#password').value;
-    //     console.log(name);
-    //     const respuesta = await this.#servicio.verificarUsuario(name, password);
-    //     console.log(respuesta)
-    //     if (name !== '' && password !== '') {
-    //         if (respuesta === 'La contraseña no coincide') {
-    //             alert('La contraseña no coincide');
-    //         }
-    //         if (respuesta === 'El nombre de usuario no existe') {
-    //             alert('El nombre de usuario no existe');
-    //         }
-    //         if (typeof respuesta === 'object' && respuesta !== null) {
-    //             alert('Bienvenido');
-    //             this.#servicio.inicioSesion(respuesta.id);
-    //             window.location.href = `../../src/index.html`;
-    //         }
-    //     } else {
-    //         alert('Faltan campos por llenar');
-    //     }
-    // }
+    async #login(shadow) {
+        const email = shadow.querySelector('#email').value;
+        const password = shadow.querySelector('#password').value;
+
+        const respuesta = await this.#servicio.inicioSesion(email, password);
+
+        if (email !== '' && password !== '') {
+            // Para no revelar información de si el correo o la contraseña son incorrectos, se muestra el mismo mensaje para ambos casos
+            if (respuesta === 'El correo electrónico no está registrado' || respuesta === 'Contraseña incorrecta') {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Los datos son incorrectos. Vuelva a intentarlo.',
+                    icon: 'error',
+                    confirmButtonColor: '#815F51',
+                    iconColor: '#815F51',
+                    background: '#F9F5F3', 
+                    color: '#36241C'
+                });
+            }
+            if (typeof respuesta === 'object' && respuesta !== null) {
+                window.location.href = `../../src/admin-index.html`;
+            }
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'Los campos no pueden estar vacíos.',
+                icon: 'error',
+                confirmButtonColor: '#815F51',
+                iconColor: '#815F51',
+                background: '#F9F5F3', 
+                color: '#36241C'
+            });
+        }
+    }
+
+    async #checkCookie() {
+        const adminCookie = this.#cookie.getCookie('admin');
+
+        if (adminCookie !== '' && adminCookie !== null) {
+            const cookieDecoded = this.#cookie.decodeJwt(adminCookie);
+            const respuesta = await this.#servicio.obtenerAdminPorId(cookieDecoded.idAdministrador);
+            
+            if (respuesta.message === 'No se logró obtener el administrador'){
+                this.#cookie.deleteCookie('admin');
+            } else {
+                window.location.href = `../../src/admin-index.html`;
+            }
+        }
+    }
 }

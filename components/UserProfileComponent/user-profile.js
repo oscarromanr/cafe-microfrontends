@@ -1,7 +1,12 @@
-//servicios
+import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
+import { ServicioCookie } from "../../Servicio/cookieServicio.js";
 import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
 
 export class UserProfile extends HTMLElement {
+    #servicio = new ServicioUsuario();
+    #cookie = new ServicioCookie();
+    #usuarioPerfil = null;
+
     constructor() {
         super();
     }
@@ -10,14 +15,36 @@ export class UserProfile extends HTMLElement {
         const shadow = this.attachShadow({ mode: "open" });
 
         document.addEventListener('DOMContentLoaded', () => {
-            this.#render(shadow);
-            this.#initButtons(shadow);
-            this.#setupFormActions(shadow);
-            this.#setupAccountActions(shadow);
-        });
+            const cookieUser = this.#getCookie();
+
+            if (cookieUser) {
+                const cookieDecoded = this.#cookie.decodeJwt(cookieUser); // Decodifica la cookie con JWT
+
+                const usuarioId = cookieDecoded.idUsuario; //obtiene el id del usuario desde el token, agregar en los otros componentes
+                this.#fetchUser(usuarioId)
+                    .then(usuario => {
+                        if (usuario && usuario.message !== 'No se logró obtener el usuario') {
+                            usuario.token = JSON.parse(cookieUser).token;
+                            this.#usuarioPerfil = usuario;
+                            this.#render(shadow, this.#usuarioPerfil);
+                            this.#initButtons(shadow);
+                            this.#setupFormActions(shadow);
+                            this.#setupAccountActions(shadow, this.#usuarioPerfil, usuario.token);
+                        } else {
+                            window.location.href = `../../src/login.html`;
+                        }
+                    });
+                } else {
+                    window.location.href = '../../src/login.html';
+                }
+            });
     }
 
-    #render(shadow){
+    #fetchUser(idUsuario){
+        return this.#servicio.obtenerUsuarioPorId(idUsuario);
+    }
+
+    #render(shadow, user){
         shadow.innerHTML = `
         <link rel="stylesheet" href="../../components/UserProfileComponent/css/user-profile.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
@@ -28,7 +55,7 @@ export class UserProfile extends HTMLElement {
             <div class="container flex flex-col items-center justify-between max-w-screen-xl mx-auto md:flex-row bg-brown-50">
                 <div class="flex flex-col justify-between mx-auto mb-2 md:mb-0 md:w-fit pb-16">
                     <div class="w-full mx-auto">
-                        <h1 class="text-brown-100 text-2xl md:text-4xl mx-auto mt-8 p-8 text-center font-medium font-helvetica">Bienvenido nombre_de_usuario</h1>
+                        <h1 class="text-brown-100 text-2xl md:text-4xl mx-auto mt-8 p-8 text-center font-medium font-helvetica">Bienvenido ${user.nombre}</h1>
                         <p class="text-brown-300 text-center font-roboto mx-auto text-lg md:text-xl px-8 md:px-20">En esta página puedes realizar acciones con tu cuenta y editar tu información personal.</p>
                     </div>
                 </div>
@@ -45,14 +72,14 @@ export class UserProfile extends HTMLElement {
                                     Nombre
                                 </label>
                                 <input id="nombre" type="text" class="w-full p-2 border bg-gray-200 rounded text-brown-300"
-                                   autofocus="" disabled value="${"nombre"}" maxlength="50" required>
+                                   autofocus="" disabled value="${user.nombre}" maxlength="50" required>
                             </div> 
                             <div class="w-full">
                                 <label class="block mb-2 text-xs font-bold tracking-wide uppercase text-brown-300" for="email">
                                     Correo electrónico
                                 </label>
                                 <input id="email" type="email" class="w-full p-2 border bg-gray-200 rounded text-brown-300"
-                                    autofocus="" disabled value="${"correo@gmail.com"}" maxlength="100" required>
+                                    autofocus="" disabled value="${user.email}" maxlength="100" required>
                             </div> 
                         </div>
                         
@@ -63,14 +90,14 @@ export class UserProfile extends HTMLElement {
                                     Calle
                                 </label>
                                 <input id="calle" type="text" class="w-full p-2 border bg-gray-200 rounded text-brown-300"
-                                   autofocus="" disabled value="${"calle"}" maxlength="100" required>
+                                   autofocus="" disabled value="${user.calle}" maxlength="100" required>
                             </div> 
                             <div class="w-full">
                                 <label class="block mb-2 text-xs font-bold tracking-wide uppercase text-brown-300" for="numCasa">
                                     Número de casa
                                 </label>
                                 <input id="numCasa" type="number" class="w-full p-2 border bg-gray-200 rounded text-brown-300"
-                                    autofocus="" disabled value="${"123"}" maxlength="15" required>
+                                    autofocus="" disabled value="${user.numerocasa}" maxlength="15" required>
                             </div> 
                         </div>
 
@@ -80,14 +107,14 @@ export class UserProfile extends HTMLElement {
                                     Colonia
                                 </label>
                                 <input id="colonia" type="text" class="w-full p-2 border bg-gray-200 rounded  text-brown-300"
-                                   autofocus="" disabled value="${"calle"}" maxlength="100" required>
+                                   autofocus="" disabled value="${user.colonia}" maxlength="100" required>
                             </div> 
                             <div class="w-full">
                                 <label class="block mb-2 text-xs font-bold tracking-wide uppercase text-brown-300" for="telefono">
                                     Teléfono
                                 </label>
                                 <input id="telefono" type="number" class="w-full p-2 border bg-gray-200 rounded text-brown-300"
-                                    autofocus="" disabled value="${"123"}" maxlength="15" required>
+                                    autofocus="" disabled value="${user.telefono}" maxlength="15" required>
                             </div> 
                         </div>
 
@@ -119,9 +146,7 @@ export class UserProfile extends HTMLElement {
                         </div>
 
                         <div class="flex flex-col md:flex-row mb-4">
-                            <button id="btnEditInfo" type="button" class="w-full transition duration-150 mr-2 mb-4 p-2 md:mb-0 bg-brown-100 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-l rounded">
-                                <i class="fas fa-pen-to-square mr-2"></i>Editar información
-                            </button> 
+                            <button id="btnEditInfo" type="button" class="w-full transition duration-150 mr-2 mb-4 p-2 md:mb-0 bg-brown-100 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-l rounded"><i class="fas fa-pen-to-square mr-2"></i>Habilitar campos</button> 
                             <button id="btnConfirmChanges" disabled class="w-full transition duration-150 mb-4 p-2 md:mb-0 bg-green-500 text-brown-50 hover:drop-shadow-l rounded">
                             <i class="fas fa-user-pen mr-2"></i>Confirmar cambios
                             </button> 
@@ -150,7 +175,7 @@ export class UserProfile extends HTMLElement {
         `;
     }
 
-    #initButtons(shadow){
+    #initButtons(shadow) {
         const btnEditInfo = shadow.querySelector('#btnEditInfo');
         const btnConfirmChanges = shadow.querySelector('#btnConfirmChanges');
 
@@ -158,14 +183,26 @@ export class UserProfile extends HTMLElement {
             const inputs = shadow.querySelectorAll('#nombre, #email, #calle, #numCasa, #colonia, #telefono, #password, #confirm-password');
 
             inputs.forEach(input => {
-                input.disabled = false;
-                input.classList.remove('bg-gray-200');
-                input.classList.add('bg-white');
+                if (input.disabled) {
+                    input.disabled = false;
+                    input.classList.remove('bg-gray-200');
+                    input.classList.add('bg-white');
+                } else {
+                    input.disabled = true;
+                    input.classList.remove('bg-white');
+                    input.classList.add('bg-gray-200');
+                }
             });
 
-            btnConfirmChanges.disabled = false;
-            btnConfirmChanges.classList.add('hover:bg-green-900');
-            btnConfirmChanges.classList.add('hover:text-white');
+            btnConfirmChanges.disabled = !btnConfirmChanges.disabled;
+            btnConfirmChanges.classList.toggle('hover:bg-green-900');
+            btnConfirmChanges.classList.toggle('hover:text-white');
+
+            if (btnEditInfo.innerHTML === '<i class="fas fa-pen-to-square mr-2"></i>Habilitar campos') {
+                btnEditInfo.innerHTML = '<i class="fas fa-pen-to-square mr-2"></i>Deshabilitar campos';
+            } else {
+                btnEditInfo.innerHTML = '<i class="fas fa-pen-to-square mr-2"></i>Habilitar campos';
+            }
         });
     }
 
@@ -193,28 +230,44 @@ export class UserProfile extends HTMLElement {
         
         const form = shadow.querySelector('#formUserData');
         
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            // sweet alert for update confirmation in spanish
             Swal.fire({
                 title: '¿Estás seguro?',
                 text: "No podrás revertir los cambios una vez confirmados.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#0E9F6E',
+                confirmButtonColor: '#815F51',
                 cancelButtonColor: '#E53E3E',
                 confirmButtonText: 'Sí, confirmar cambios',
                 cancelButtonText: 'Cancelar',
                 background: '#F9F5F3', 
                 color: '#36241C',
                 iconColor: '#815F51'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
                     const passwordInput = shadow.querySelector('#password');
                     const confirmPasswordInput = shadow.querySelector('#confirm-password');
+                    const nombreInput = shadow.querySelector('#nombre');
+                    const emailInput = shadow.querySelector('#email');
+                    const calleInput = shadow.querySelector('#calle');
+                    const numCasaInput = shadow.querySelector('#numCasa');
+                    const coloniaInput = shadow.querySelector('#colonia');
+                    const telefonoInput = shadow.querySelector('#telefono');
                     
-                    if (passwordInput.value !== confirmPasswordInput.value) {
+                    if (passwordInput.value === '' || confirmPasswordInput.value === '' || nombreInput.value === '' || emailInput.value === '' || calleInput.value === '' || numCasaInput.value === '' || coloniaInput.value === '' || telefonoInput.value === '') {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Los campos no pueden estar vacíos.',
+                            icon: 'error',
+                            confirmButtonColor: '#815F51',
+                            iconColor: '#815F51',
+                            background: '#F9F5F3', 
+                            color: '#36241C'
+                        });
+                        return;
+                    } else if (passwordInput.value !== confirmPasswordInput.value) {
                         Swal.fire({
                             title: 'Error',
                             text: 'Las contraseñas no coinciden. Vuelva a intentarlo.',
@@ -225,13 +278,22 @@ export class UserProfile extends HTMLElement {
                             color: '#36241C'
                         });
                         return;
+                    } else if ( passwordInput.value !== this.#usuarioPerfil.password) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'La contraseña actual no es correcta. Vuelva a intentarlo.',
+                            icon: 'error',
+                            confirmButtonColor: '#815F51',
+                            iconColor: '#815F51',
+                            background: '#F9F5F3', 
+                            color: '#36241C'
+                        });
+                        return; 
                     }
 
-                    // TODO: aqui realizar la peticion al backend para actualizar la informacion del usuario
-                    // changesMade representa el exito de la petición, de momento es solo para testear la funcionalidad
-                    const changesMade = true;
-
-                    if (changesMade){
+                    const respuesta = await this.#servicio.actualizarUsuario(this.#usuarioPerfil._id, this.#usuarioPerfil.token, nombreInput.value, emailInput.value, calleInput.value, numCasaInput.value, coloniaInput.value, telefonoInput.value);
+            
+                    if (respuesta.message === "Usuario actualizado exitosamente"){
                         Swal.fire({
                             title: '¡Cambios confirmados!',
                             text: 'Tus cambios han sido confirmados.',
@@ -241,7 +303,7 @@ export class UserProfile extends HTMLElement {
                             iconColor: '#815F51',
                             color: '#36241C'
                         }).then((result) => {
-                            if (result.isConfirmed) {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.backdrop || result.dismiss === Swal.DismissReason.timer || result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason) {
                                 location.reload();
                             }
                         });
@@ -256,7 +318,6 @@ export class UserProfile extends HTMLElement {
                             color: '#36241C'
                         });
                     }
-                    
                 } else {
                     Swal.fire({
                         title: 'Cambios cancelados',
@@ -272,7 +333,7 @@ export class UserProfile extends HTMLElement {
         });
     }
 
-    #setupAccountActions(shadow){
+    #setupAccountActions(shadow, user, token){
 
         const btnLogout = shadow.querySelector('#btnLogout');
         const btnChangePassword = shadow.querySelector('#btnChangePassword');
@@ -293,12 +354,14 @@ export class UserProfile extends HTMLElement {
                 iconColor: '#815F51'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    this.#cookie.deleteCookie('usuario');
                     window.location.href = 'index.html';
                 }
             });
         });
 
         btnChangePassword.addEventListener('click', () => {
+            var changesMade = false;
             Swal.fire({
                 title: 'Cambiar contraseña',
                 icon: 'info',
@@ -334,7 +397,7 @@ export class UserProfile extends HTMLElement {
                 background: '#F9F5F3', 
                 color: '#36241C',
                 iconColor: '#815F51',
-                preConfirm: () => {
+                preConfirm: async () => {
                     const currentPassword = Swal.getPopup().querySelector('#currentPassword').value;
                     const newPassword = Swal.getPopup().querySelector('#newPassword').value;
                     const confirmNewPassword = Swal.getPopup().querySelector('#confirmNewPassword').value;
@@ -348,16 +411,23 @@ export class UserProfile extends HTMLElement {
                         Swal.showValidationMessage('Las contraseñas no coinciden');
                     } else if (!confirmChangePassword) {
                         Swal.showValidationMessage('Por favor, confirme el cambio de contraseña');
+                    } else if (currentPassword !== user.password) {
+                        Swal.showValidationMessage('La contraseña actual no es correcta');
+                    } else if (newPassword === currentPassword) {
+                        Swal.showValidationMessage('La contraseña nueva no puede ser igual a la actual');
                     } else {
-                        return { currentPassword, newPassword, confirmNewPassword };
-                    }
+                        const respuesta = await this.#servicio.cambiarPassword(user._id, token, newPassword);
+
+                        if (respuesta.message === "Usuario actualizado exitosamente") {
+                            changesMade = true;
+                            return { respuesta };
+                        } else {
+                            Swal.showValidationMessage('No se ha podido actualizar tu contraseña. Intente de nuevo más tarde.');
+                        }
+                    }    
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // TODO: realizar la petición al backend para actualizar la contraseña del usuario
-                    // changesMade representa el exito de la petición, de momento es solo para testear la funcionalidad
-                    const changesMade = true;
-
                     if (changesMade) {
                         Swal.fire({
                             title: '¡Contraseña modificada!',
@@ -367,6 +437,10 @@ export class UserProfile extends HTMLElement {
                             background: '#F9F5F3', 
                             color: '#36241C',
                             iconColor: '#815F51'
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.backdrop || result.dismiss === Swal.DismissReason.timer || result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason ) {
+                                location.reload();
+                            }
                         });
                     } else {
                         Swal.fire({
@@ -426,23 +500,43 @@ export class UserProfile extends HTMLElement {
                 background: '#F9F5F3', 
                 color: '#36241C',
                 iconColor: '#815F51'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Cuenta eliminada',
-                        text: "Tu cuenta ha sido eliminada exitosamente.",
-                        icon: 'success',
-                        confirmButtonColor: '#815F51',
-                        background: '#F9F5F3', 
-                        color: '#36241C',
-                        iconColor: '#815F51'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = 'index.html';
-                        }
-                    });
+                    const respuesta = await this.#servicio.eliminarUsuario(user._id, token);
+
+                    if (respuesta.message === "Usuario eliminado exitosamente") {
+                        this.#cookie.deleteCookie('usuario');
+
+                        Swal.fire({
+                            title: 'Cuenta eliminada',
+                            text: "Tu cuenta ha sido eliminada exitosamente.",
+                            icon: 'success',
+                            confirmButtonColor: '#815F51',
+                            background: '#F9F5F3', 
+                            color: '#36241C',
+                            iconColor: '#815F51'
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.backdrop || result.dismiss === Swal.DismissReason.timer || result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason) {
+                                window.location.href = '../../src/index.html';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error al eliminar',
+                            text: 'No se ha podido eliminar tu cuenta. Intente de nuevo más tarde.',
+                            icon: 'error',
+                            iconColor: '#815F51',
+                            confirmButtonColor: '#815F51',
+                            background: '#F9F5F3', 
+                            color: '#36241C'
+                        });
+                    }
                 }
             });
         });        
+    }
+
+    #getCookie() {
+        return this.#cookie.getCookie('usuario');
     }
 }
