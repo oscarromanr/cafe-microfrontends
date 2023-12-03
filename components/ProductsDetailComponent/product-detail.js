@@ -21,12 +21,11 @@ export class ProductDetails extends HTMLElement {
                             this.#render(shadow, product);
                             this.#initControls(shadow, product);
                         } else {
-                            window.location.href = 'index.html';
-                            //instead of window location do the redirection with routing of the library ""
+                            window.location.href = '../../src/index.html';
                         }
                     });
             } else {
-                window.location.href = 'index.html';
+                window.location.href = '../../src/index.html';
             }
         });
     }
