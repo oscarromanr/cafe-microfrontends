@@ -16,6 +16,8 @@ import { RegistrarProducto } from "../components/RegistrarProductoComponent/regi
 import { Cart } from "../components/CartComponent/cart.js";
 import { UserProfile} from "../components/UserProfileComponent/user-profile.js";
 import { AdminProduct } from "../components/AdminProduct/admin-product.js";
+import { OrdenDetail } from "../components/OrdenComponent/orden-detail.js";
+import { OrderList } from "../components/OrdersComponent/orders.js";
 
 window.customElements.define('header-info', Header);
 window.customElements.define('banner-info', Banner);
@@ -35,3 +37,5 @@ window.customElements.define('register-product', RegistrarProducto);
 window.customElements.define('cart-info', Cart);
 window.customElements.define('user-profile-info', UserProfile);
 window.customElements.define('update-product', AdminProduct);
+window.customElements.define('order-detail', OrdenDetail);
+window.customElements.define('order-list', OrderList);
