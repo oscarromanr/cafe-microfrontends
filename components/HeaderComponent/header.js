@@ -1,6 +1,14 @@
 import { LocalStorageService } from "../../Servicio/LocalStorageService.js";
+import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
+import { ServicioOrden } from "../../Servicio/ordenServicio.js";
+import { ServicioCookie } from "../../Servicio/cookieServicio.js";
 
 export class Header extends HTMLElement {
+    #servicioUsuario = new ServicioUsuario();
+    #servicioOrden = new ServicioOrden();
+    #cookie = new ServicioCookie();
+    #usuarioPerfil = null;
+
     constructor() {
         super();
     }
@@ -9,8 +17,44 @@ export class Header extends HTMLElement {
         const shadow = this.attachShadow({ mode: "open" });
         const cart = JSON.parse(LocalStorageService.getItem('carrito')) || [];
         this.cantidadCarrito = cart.length;
-        this.#render(shadow);
-        this.#addToggleFunctionality(shadow);
+        this.cantidadOrdenes = null;
+
+        const cookieUser = this.#getCookie();
+
+        const fetchData = async () => {
+            if (cookieUser) {
+                const cookieDecoded = this.#cookie.decodeJwt(cookieUser); 
+                const usuarioId = cookieDecoded.idUsuario;
+                const usuario = await this.#fetchUser(usuarioId);
+                if (usuario && usuario.message !== 'No se logró obtener el usuario') {
+                    usuario.token = JSON.parse(cookieUser).token;
+                    this.#usuarioPerfil = usuario;
+                    const ordenes = await this.#servicioOrden.obtenerOrdenesPorUsuario(usuarioId, usuario.token);
+                    if (ordenes && ordenes.message !== 'No se logró obtener las ordenes') {
+                        this.cantidadOrdenes = ordenes.ordenes.length;
+                    } else {
+                        this.cantidadOrdenes = 0;
+                    }
+                } else {
+                    this.cantidadOrdenes = 0;
+                }
+            } else {
+                this.cantidadOrdenes = 0;
+            }
+
+            this.#render(shadow);
+            this.#addToggleFunctionality(shadow);
+        };
+
+        fetchData();
+    }
+
+    #fetchUser(idUsuario){
+        return this.#servicioUsuario.obtenerUsuarioPorId(idUsuario);
+    }
+
+    #getCookie() {
+        return this.#cookie.getCookie('usuario');
     }
 
     #render(shadow) {
@@ -60,10 +104,16 @@ export class Header extends HTMLElement {
                                     ${this.cantidadCarrito}
                                 </div>
                             ` : ''
-                        }
+                            }
                         </a>
-                        <a class="relative px-4 text-xl transition-all duration-200 hover:scale-110 text-brown-50 hover:text-white" href="">
+                        <a class="relative px-4 text-xl transition-all duration-200 hover:scale-110 text-brown-50 hover:text-white" href="../../src/orders.html">
                             <i class="fa fa-fw fa-shopping-bag"></i>
+                            ${ this.cantidadOrdenes > 0 ? ` 
+                                <div class="absolute inline-flex items-center justify-center w-6 h-6 text-center text-xs font-helvetica font-bold text-brown-25 bg-brown-200 rounded-full -translate-x-3 -translate-y-3">
+                                    ${this.cantidadOrdenes}
+                                </div>
+                            ` : ''
+                            }
                         </a>
                         <a class="relative px-4 text-xl transition-all duration-200 hover:scale-110 text-brown-50 hover:text-white" href="../../src/login.html">
                             <i class="fa fa-fw fa-user"></i>
@@ -97,9 +147,16 @@ export class Header extends HTMLElement {
                                              ` : ''
                                          }
                                 </a>
-                                <a href="../../src/index.html"
+                                <a href="../../src/orders.html"
                                     class="text-sm text-brown-25 hover:scale-110 hover:text-white transition-all duration-150 px-2">
                                     <i class="fa fa-fw fa-shopping-bag"></i>
+                                    ${ this.cantidadOrdenes > 0 ?
+                                        ` 
+                                           <div class="inline-flex items-center justify-center w-5 h-5 text-center text-xs font-helvetica font-bold text-brown-25 bg-brown-100 rounded-full -translate-x-3 -translate-y-3">
+                                               ${this.cantidadOrdenes}
+                                           </div>
+                                        ` : ''
+                                    }
                                 </a>
                                 <a href="../../src/login.html"
                                     class="text-sm text-brown-25 hover:scale-110 hover:text-white transition-all duration-150 px-2">

@@ -305,9 +305,6 @@ export class RegistrarProducto extends HTMLElement {
                             <label class="block mb-2 text-xs font-bold tracking-wide uppercase text-brown-300" for="grid-img">
                                 Imagen *
                             </label>
-                            <button id="fileInputBtn" class="px-4 py-2 font-bold transition duration-200 rounded shadow bg-brown-100 text-brown-50 hover:bg-brown-300 hover:text-white focus:shadow-outline focus:outline-none">
-                                Seleccionar archivo
-                            </button>
                             <input class="block w-full px-4 py-3 mb-3 leading-tight border rounded appearance-none text-brown-300 bg-brown-25 border-brown-100 focus:outline-none focus:bg-brown-25" id="grid-img" type="file" placeholder="Arrastre y suelte un archivo" required>
                         </div>
                         <div class="w-full px-3 mb-0 md:mb-3">
@@ -321,9 +318,7 @@ export class RegistrarProducto extends HTMLElement {
                             <i class="fa fa-plus mr-2"></i>Agregar producto
                             </button>
                         </div>
-                    </div>
-                    </div>
-                    
+                    </div>                    
                 </form>
             </div>
         </section>

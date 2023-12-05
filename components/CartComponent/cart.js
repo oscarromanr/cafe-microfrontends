@@ -1,9 +1,18 @@
 import { ServicioProducto } from "../../Servicio/productoServicio.js";
 import { LocalStorageService } from "../../Servicio/LocalStorageService.js";
+import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
+import { ServicioOrden } from "../../Servicio/ordenServicio.js";
+import { ServicioCookie } from "../../Servicio/cookieServicio.js";
 import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
 
 export class Cart extends HTMLElement {
     #servicio = new ServicioProducto();
+    #cookie = new ServicioCookie();
+    #servicioUsuario = new ServicioUsuario();
+    #servicioOrden = new ServicioOrden();
+    #usuarioPerfil = null;
+    #total = null;
+
     #products = [];
 
     constructor() {
@@ -12,6 +21,7 @@ export class Cart extends HTMLElement {
 
     connectedCallback() {
         const shadow = this.attachShadow({ mode: "open" });
+        const cookieUser = this.#getCookie();
 
         document.addEventListener('DOMContentLoaded', async () => {
             const cart = JSON.parse(LocalStorageService.getItem('carrito'));
@@ -23,8 +33,27 @@ export class Cart extends HTMLElement {
                     this.#products.push(response);
                 }
             }
+
+            if (cookieUser) {
+                const cookieDecoded = this.#cookie.decodeJwt(cookieUser); 
+                const usuarioId = cookieDecoded.idUsuario;
+                const usuario = await this.#fetchUser(usuarioId);
+                if (usuario && usuario.message !== 'No se logró obtener el usuario') {
+                    usuario.token = JSON.parse(cookieUser).token;
+                    this.#usuarioPerfil = usuario;
+                } 
+            } 
+
             this.#render(shadow, this.#products);
         });
+    }
+
+    #fetchUser(idUsuario){
+        return this.#servicioUsuario.obtenerUsuarioPorId(idUsuario);
+    }
+
+    #getCookie() {
+        return this.#cookie.getCookie('usuario');
     }
 
     #fetchProduct(productId) {
@@ -141,6 +170,7 @@ export class Cart extends HTMLElement {
         iva = subtotal * 0.16;
 
         total = subtotal + iva;
+        this.#total = total;
 
         return `
         <div class="mb-2 flex justify-between">
@@ -158,7 +188,7 @@ export class Cart extends HTMLElement {
                     <p class="mb-1 text-lg md:text-xl font-bold text-brown-300">$${total.toFixed(2)}</p>
                 </div>
             </div>
-            <button class="mt-6 w-full rounded-md bg-brown-100 py-1.5 font-medium text-brown-25 transition-all duration-150 hover:text-white hover:bg-brown-300"><i class="fas fa-bag-shopping mr-2 text-white"></i>Comprar ahora</button>
+            <button id="btnBuyNow" class="mt-6 w-full rounded-md bg-brown-100 py-1.5 font-medium text-brown-25 transition-all duration-150 hover:text-white hover:bg-brown-300"><i class="fas fa-bag-shopping mr-2 text-white"></i>Comprar ahora</button>
         </div>
         `;
     }
@@ -188,7 +218,7 @@ export class Cart extends HTMLElement {
         const btnPlusElements = shadow.querySelectorAll('.btnPlus');
         const btnMinusElements = shadow.querySelectorAll('.btnMinus');
         const btnDeleteElements = shadow.querySelectorAll('.btnDelete');
-
+        const btnBuyNow = shadow.querySelector('#btnBuyNow');
         const cart = JSON.parse(LocalStorageService.getItem('carrito'));
 
         btnPlusElements.forEach((btnPlus, index) => {
@@ -253,5 +283,104 @@ export class Cart extends HTMLElement {
                 });
             });
         });
+
+        btnBuyNow.addEventListener('click', async () => {
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¿Deseas comprar este producto?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#815F51',
+                cancelButtonColor: '#E53E3E',
+                confirmButtonText: 'Sí, comprar ahora',
+                cancelButtonText: 'Cancelar',
+                background: '#F9F5F3', 
+                iconColor: '#815F51',
+                color: '#36241C'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    if (this.#usuarioPerfil === null) {
+                        Swal.fire({
+                            title: 'No has iniciado sesión',
+                            text: "Necesitas iniciar sesión para comprar ahora",
+                            icon: 'error',
+                            confirmButtonColor: '#815F51',
+                            background: '#F9F5F3', 
+                            iconColor: '#815F51',
+                            color: '#36241C',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cancelar',
+                            cancelButtonColor: '#E53E3E',
+                            confirmButtonText: 'Ir al inicio de sesión',
+                            confirmButtonAriaLabel: 'Ir al inicio de sesión'
+                        }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop) {
+                                return;
+                            }
+                            window.location.href = '../../src/login.html';
+                        })     
+                    } else {
+                        const productoArray = products;
+                        const totalProducto = this.#total;
+                        const direccion = this.#usuarioPerfil.calle + ' ' + this.#usuarioPerfil.numerocasa + ', ' + this.#usuarioPerfil.colonia + '.';
+
+                        const orden = {
+                            idUsuario: this.#usuarioPerfil._id,
+                            fechaOrden: new Date(),
+                            estado: 'En proceso',
+                            total: totalProducto,
+                            productos: productoArray,
+                            direccionEnvio: direccion,
+                            metodoPago: 'Tarjeta de crédito'
+                        }
+
+
+                        const response = await this.#servicioOrden.crearOrden(orden.idUsuario, orden.fechaOrden, orden.estado, orden.total, orden.productos, orden.direccionEnvio, orden.metodoPago, this.#usuarioPerfil.token)
+
+                        if (response.message === 'Orden creada exitosamente') {
+                            LocalStorageService.removeItem('carrito');
+                            Swal.fire({
+                                title: '¡Compra realizada!',
+                                text: "Tu compra se ha realizado exitosamente",
+                                icon: 'success',
+                                confirmButtonColor: '#815F51',
+                                background: '#F9F5F3', 
+                                iconColor: '#815F51',
+                                color: '#36241C',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cerrar',
+                                cancelButtonColor: '#E53E3E',
+                                confirmButtonText: 'Ir a las compras',
+                                confirmButtonAriaLabel: 'Ir a las compras'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '../../src/orders.html';
+                                } else {
+                                    location.reload();
+                                }
+                            })
+                        } else {
+                            Swal.fire({
+                                title: '¡Error!',
+                                text: "No se pudo crear la orden",
+                                icon: 'error',
+                                confirmButtonColor: '#815F51',
+                                background: '#F9F5F3', 
+                                iconColor: '#815F51',
+                                color: '#36241C',
+                                confirmButtonText: 'Ok',
+                                confirmButtonAriaLabel: 'Ok'
+                            }).then((result) => {
+                                if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.timer || result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason.overlayClick || result.dismiss === Swal.DismissReason.popupClick || result.dismiss === Swal.DismissReason.cancel) {
+                                    location.reload();
+                                }
+                            })
+                        
+                        }
+                    }
+                }
+            })});
+       
     }
 }

@@ -16,24 +16,23 @@ export class UserProfile extends HTMLElement {
 
         document.addEventListener('DOMContentLoaded', () => {
             const cookieUser = this.#getCookie();
+                if (cookieUser) {
+                    const cookieDecoded = this.#cookie.decodeJwt(cookieUser); // Decodifica la cookie con JWT
 
-            if (cookieUser) {
-                const cookieDecoded = this.#cookie.decodeJwt(cookieUser); // Decodifica la cookie con JWT
-
-                const usuarioId = cookieDecoded.idUsuario; //obtiene el id del usuario desde el token, agregar en los otros componentes
-                this.#fetchUser(usuarioId)
-                    .then(usuario => {
-                        if (usuario && usuario.message !== 'No se logró obtener el usuario') {
-                            usuario.token = JSON.parse(cookieUser).token;
-                            this.#usuarioPerfil = usuario;
-                            this.#render(shadow, this.#usuarioPerfil);
-                            this.#initButtons(shadow);
-                            this.#setupFormActions(shadow);
-                            this.#setupAccountActions(shadow, this.#usuarioPerfil, usuario.token);
-                        } else {
-                            window.location.href = `../../src/login.html`;
-                        }
-                    });
+                    const usuarioId = cookieDecoded.idUsuario; //obtiene el id del usuario desde el token, agregar en los otros componentes
+                    this.#fetchUser(usuarioId)
+                        .then(usuario => {
+                            if (usuario && usuario.message !== 'No se logró obtener el usuario') {
+                                usuario.token = JSON.parse(cookieUser).token;
+                                this.#usuarioPerfil = usuario;
+                                this.#render(shadow, this.#usuarioPerfil);
+                                this.#initButtons(shadow);
+                                this.#setupFormActions(shadow);
+                                this.#setupAccountActions(shadow, this.#usuarioPerfil, usuario.token);
+                            } else {
+                                window.location.href = `../../src/login.html`;
+                            }
+                        });
                 } else {
                     window.location.href = '../../src/login.html';
                 }
