@@ -1,9 +1,16 @@
 import { ServicioProducto } from "../../Servicio/productoServicio.js";
+import { ServicioUsuario } from "../../Servicio/usuarioServicio.js";
+import { ServicioCookie } from "../../Servicio/cookieServicio.js";
+import { ServicioOrden } from "../../Servicio/ordenServicio.js";
 import { LocalStorageService } from "../../Servicio/LocalStorageService.js";
 import Swal from "../../node_modules/sweetalert2/src/sweetalert2.js";
 
 export class ProductDetails extends HTMLElement {
-    #servicio = new ServicioProducto();
+    #servicioProducto = new ServicioProducto();
+    #servicioOrden = new ServicioOrden();
+    #servicioUsuario = new ServicioUsuario();
+    #cookie = new ServicioCookie();
+    #usuarioPerfil = null;
 
     constructor() {
         super();
@@ -12,10 +19,25 @@ export class ProductDetails extends HTMLElement {
     connectedCallback() {
         const shadow = this.attachShadow({ mode: "open" });
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const productId = this.#getParameterByName('id');
+            const cookieUser = this.#getCookie();
+
+            if (cookieUser) {
+                const cookieDecoded = this.#cookie.decodeJwt(cookieUser); 
+
+                const usuarioId = cookieDecoded.idUsuario; 
+                await this.#fetchUser(usuarioId)
+                    .then(usuario => {
+                        if (usuario && usuario.message !== 'No se logró obtener el usuario') {
+                            usuario.token = JSON.parse(cookieUser).token;
+                            this.#usuarioPerfil = usuario;
+                        } 
+                    });
+            }
+
             if (productId) {
-                this.#fetchProduct(productId)
+                await this.#fetchProduct(productId)
                     .then(product => {
                         if (product) {
                             this.#render(shadow, product);
@@ -30,6 +52,14 @@ export class ProductDetails extends HTMLElement {
         });
     }
 
+    #fetchUser(idUsuario){
+        return this.#servicioUsuario.obtenerUsuarioPorId(idUsuario);
+    }
+
+    #getCookie() {
+        return this.#cookie.getCookie('usuario');
+    }
+
     #getParameterByName(name) {
         const url = window.location.href;
         name = name.replace(/[\[\]]/g, '\\$&');
@@ -41,7 +71,7 @@ export class ProductDetails extends HTMLElement {
     }
 
     #fetchProduct(productId) {
-        return this.#servicio.obtenerProductoPorId(productId);
+        return this.#servicioProducto.obtenerProductoPorId(productId);
     }
 
     #render(shadow, producto) {
@@ -145,10 +175,14 @@ export class ProductDetails extends HTMLElement {
         const btnBuyNow = shadow.querySelector('#btnBuyNow');
 
         btnBuyNow.addEventListener('click', () => {
-            // Confirmación de compra
+            
+            const subtotal = product.precio * productQty.value;
+            const iva = subtotal * 0.16;
+            const totalProducto = subtotal + iva;
+
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "¿Deseas comprar este producto?",
+                text: "¿Deseas comprar este producto?, el total es de $" + totalProducto.toFixed(2) + " (IVA incluido)",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#815F51',
@@ -158,31 +192,91 @@ export class ProductDetails extends HTMLElement {
                 background: '#F9F5F3', 
                 iconColor: '#815F51',
                 color: '#36241C'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
+                    if (this.#usuarioPerfil === null) {
+                        Swal.fire({
+                            title: 'No has iniciado sesión',
+                            text: "Necesitas iniciar sesión para comprar ahora",
+                            icon: 'error',
+                            confirmButtonColor: '#815F51',
+                            background: '#F9F5F3', 
+                            iconColor: '#815F51',
+                            color: '#36241C',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cancelar',
+                            cancelButtonColor: '#E53E3E',
+                            confirmButtonText: 'Ir al inicio de sesión',
+                            confirmButtonAriaLabel: 'Ir al inicio de sesión'
+                        }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop) {
+                                return;
+                            }
+                            window.location.href = '../../src/login.html';
+                        })     
+                    } else {
+                        product.cantidadCarrito = 1;
+                        const productoArray = [product];
 
-                    // TODO: validar cantidad seleccionada
-                    // TODO: Registrar la compra y agregar otra alerta sweetalert2 de éxito
+                        const subtotal = product.precio * productQty.value;
+                        const iva = subtotal * 0.16;
+                        const totalProducto = subtotal + iva;
 
-                    Swal.fire({
-                        title: '¡Compra realizada!',
-                        text: "Tu compra se ha realizado exitosamente",
-                        icon: 'success',
-                        confirmButtonColor: '#815F51',
-                        background: '#F9F5F3', 
-                        iconColor: '#815F51',
-                        color: '#36241C',
-                        showCancelButton: true,
-                        cancelButtonText: 'Cerrar',
-                        cancelButtonColor: '#E53E3E',
-                        confirmButtonText: 'Ir a las compras',
-                        confirmButtonAriaLabel: 'Ir a las compras'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Aquí cambiará a la página de compras realizadas (index.html) 
-                            window.location.href = 'index.html';
+                        const direccion = this.#usuarioPerfil.calle + ' ' + this.#usuarioPerfil.numerocasa + ', ' + this.#usuarioPerfil.colonia + '.';
+
+                        const orden = {
+                            idUsuario: this.#usuarioPerfil._id,
+                            fechaOrden: new Date(),
+                            estado: 'En proceso',
+                            total: totalProducto,
+                            productos: productoArray,
+                            direccionEnvio: direccion,
+                            metodoPago: 'Tarjeta de crédito'
                         }
-                    })
+
+
+                        const response = await this.#servicioOrden.crearOrden(orden.idUsuario, orden.fechaOrden, orden.estado, orden.total, orden.productos, orden.direccionEnvio, orden.metodoPago, this.#usuarioPerfil.token)
+
+                        if (response.message === 'Orden creada exitosamente') {
+                            Swal.fire({
+                                title: '¡Compra realizada!',
+                                text: "Tu compra se ha realizado exitosamente",
+                                icon: 'success',
+                                confirmButtonColor: '#815F51',
+                                background: '#F9F5F3', 
+                                iconColor: '#815F51',
+                                color: '#36241C',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cerrar',
+                                cancelButtonColor: '#E53E3E',
+                                confirmButtonText: 'Ir a las compras',
+                                confirmButtonAriaLabel: 'Ir a las compras'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '../../src/orders.html';
+                                } else {
+                                    location.reload();
+                                }
+                            })
+                        } else {
+                            Swal.fire({
+                                title: '¡Error!',
+                                text: "No se pudo crear la orden",
+                                icon: 'error',
+                                confirmButtonColor: '#815F51',
+                                background: '#F9F5F3', 
+                                iconColor: '#815F51',
+                                color: '#36241C',
+                                confirmButtonText: 'Ok',
+                                confirmButtonAriaLabel: 'Ok'
+                            }).then((result) => {
+                                if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop || result.dismiss === Swal.DismissReason.esc || result.dismiss === Swal.DismissReason.timer || result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason.overlayClick || result.dismiss === Swal.DismissReason.popupClick || result.dismiss === Swal.DismissReason.cancel) {
+                                    location.reload();
+                                }
+                            })
+                        
+                        }
+                    }
                 }
             })});
         
@@ -192,7 +286,6 @@ export class ProductDetails extends HTMLElement {
 
                 if (productQty >= 1 && productQty <= product.stock && product.stock > 0) {
                     if (this.#addToCart(productId, productQty, product.stock)){
-                        // El producto se agregó al carrito
                         Swal.fire({
                             title: '¡Producto agregado!',
                             text: "Tu producto se ha agregado al carrito",
@@ -213,7 +306,6 @@ export class ProductDetails extends HTMLElement {
                             window.location.href = 'cart.html';
                         })     
                     } else {
-                        // No hay suficiente stock ya que el producto ya se encuentra en el carrito y se quiere agregar más de lo que hay en stock.
                         Swal.fire({
                             title: '¡Error!',
                             text: "No hay suficiente stock, revise su carrito",
@@ -280,4 +372,6 @@ export class ProductDetails extends HTMLElement {
         LocalStorageService.setItem('carrito', JSON.stringify(cart));
         return true;
     }
+
+    
 }

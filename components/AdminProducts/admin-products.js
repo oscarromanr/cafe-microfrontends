@@ -68,9 +68,8 @@ export class AdminProducts extends HTMLElement {
             <div class="z-10 p-8 w-full md:pb-72 bg-brown-400" id="tableDiv">
                 <div class="mt-6 rounded-lg border bg-brown-25 w-full max-w-6xl mx-auto p-8 shadow-md md:mt-0 hidden" id="avisoProducts">
                     <p class="text-brown-100 font-helvetica md:text-2xl text-xl">
-                        Actualmente no existen usuarios registrados.
+                        Actualmente no existen productos registrados.
                     </p>
-                    <a href="../../src/admin-index.html"><button class="mt-6 w-full px-8 md:px-4 md:w-fit rounded-md bg-brown-100 py-1.5 font-medium text-brown-25 transition-all duration-150 hover:text-white hover:bg-brown-300">Volver al menú</button></a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="p-8 bg-brown-50 mb-4 w-full max-w-6xl md:p-6 mx-auto table-auto rounded text-lg" id="tabla">
