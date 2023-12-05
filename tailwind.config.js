@@ -3,9 +3,7 @@ module.exports = {
   content: [
   './*/*.html', 
   './components/**/*.{html,js}',
-  "./src/**/*.{html,js}",
-  "./node_modules/flowbite/**/*.js",
-  "./node_modules/tw-elements/dist/js/**/*.js"
+  "./src/**/*.{html,js}"
   ],
   theme: {
     extend: {
@@ -26,7 +24,5 @@ module.exports = {
     },
   },
   plugins: [
-    require('flowbite/plugin'),
-    require("tw-elements/dist/plugin.cjs")
   ]
 }

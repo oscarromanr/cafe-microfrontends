@@ -32,10 +32,10 @@ export class AdminMenu extends HTMLElement {
                             window.location.href = `../../src/admin-login.html`;
                         }
                     });
-                } else {
-                    window.location.href = '../../src/admin-login.html';
-                }
-            });
+            } else {
+                window.location.href = '../../src/admin-login.html';
+            }
+        });
     }
 
     #fetchAdmin(idAdmin){
@@ -60,10 +60,10 @@ export class AdminMenu extends HTMLElement {
             </div>   
 
             <div class="z-10 p-8 w-full bg-brown-400">
-                <div class="mx-auto mb-4 p-4 max-w-3xl">
-                    <h2 class="text-brown-300 text-center text-2xl md:text-3xl font-medium">Acciones de cuenta</h2>
+                <div class="mx-auto mb-4 pt-6 p-4 max-w-3xl">
+                    <h2 class="text-brown-200 text-center text-2xl md:text-3xl font-medium">Acciones de cuenta</h2>
                 </div>
-                <div class="flex flex-col mb-4 max-w-lg mx-auto p-2 pb-48">
+                <div class="flex flex-col mb-4 max-w-lg mx-auto p-2 pt-6 pb-6 md:pt-2 md:pb-48">
                     <button id="btnLogout" type="button" class="w-full transition duration-150 mr-2 mb-4 p-2 bg-brown-100 text-brown-50 hover:bg-brown-300 hover:text-white hover:drop-shadow-l rounded">
                         <i class="fas fa-right-from-bracket mr-2"></i>Cerrar sesión
                     </button>

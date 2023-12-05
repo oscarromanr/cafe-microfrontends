@@ -28,16 +28,15 @@ export class ServicioProducto {
         }
     }
 
-    async crearProducto(productoData) {
+    async crearProducto(nombre, descripcion, precio, stock, categoria, imagenurl, token) {
         try {
-            const token = this.#cookie.getCookie('Cafe')
             let response = await fetch(this.#urlProducto, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + token
                 },
-                body: JSON.stringify(productoData)
+                body: JSON.stringify({ nombre, descripcion, precio, stock, categoria, imagenurl})
             });
             let json = await response.json();
             return json;
@@ -47,16 +46,15 @@ export class ServicioProducto {
         }
     }
 
-    async actualizarProducto(productoId, productoData) {
+    async actualizarProducto(productoId, nombre, descripcion, precio, stock, categoria, imagenurl, token) {
         try {
-            const token = this.#cookie.getCookie('Cafe')
             let response = await fetch(this.#urlProducto + productoId, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + token
                 },
-                body: JSON.stringify(productoData)
+                body: JSON.stringify({nombre, descripcion, precio, stock, categoria, imagenurl})
             });
             let json = await response.json();
             return json;
@@ -66,9 +64,8 @@ export class ServicioProducto {
         }
     }
 
-    async eliminarProducto(id) {
+    async eliminarProducto(id, token) {
         try {
-            const token = this.#cookie.getCookie('Cafe')
             let response = await fetch(this.#urlProducto + id, {
                 method: "DELETE",
                 headers: {
