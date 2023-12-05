@@ -9,7 +9,7 @@ import { AdminHeader } from "../components/AdminHeaderComponent/admin-header.js"
 import { Register } from "../components/RegisterComponent/register.js";
 import { Contact } from "../components/ContactComponent/contact.js";
 import { LoginAdmin} from "../components/LoginAdminComponent/login-admin.js";
-import { AdminProducts } from "../components/AdminProducts/adminProduct.js";
+import { AdminProducts } from "../components/AdminProducts/admin-products.js";
 import { AdminUsers } from "../components/AdminUsersComponent/admin-users.js";
 import { ProductDetails } from "../components/ProductsDetailComponent/product-detail.js";
 import { RegistrarProducto } from "../components/RegistrarProductoComponent/registrarProducto.js";

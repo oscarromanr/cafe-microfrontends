@@ -45,6 +45,13 @@ export class ProductDetails extends HTMLElement {
     }
 
     #render(shadow, producto) {
+        let imageUrl = null;
+        if (producto.imagenurl.includes('http')) {
+            imageUrl = producto.imagenurl;
+        } else {
+            imageUrl = `../../img/${producto.imagenurl}`;
+        }
+
         shadow.innerHTML = `
         <style>
         /* Chrome, Safari, Edge, Opera */
@@ -69,7 +76,7 @@ export class ProductDetails extends HTMLElement {
             <div class="mx-auto bg-brown-50 w-full max-h-full h-full">
                 <div class="flex flex-col md:flex-row w-full px-6 md:max-w-7xl mx-auto mt-4 mb-4">
                     <div class="md:w-1/3 md:pr-8">
-                        <img src="../../img/${producto.imagenurl}" id="productImg" alt="Product Image" class="mx-auto w-full hover:scale-110 duration-150 transition-all rounded-lg drop-shadow-lg">
+                        <img src="${imageUrl}" referrerpolicy="no-referrer" id="productImg" alt="Product Image" class="mx-auto w-full hover:scale-110 duration-150 transition-all rounded-lg drop-shadow-lg">
                     </div>
                     <div class="md:w-2/3 mt-4 md:mt-0">
                         <div class="bg-brown-25 p-6 font-helvetica rounded-lg drop-shadow-lg">

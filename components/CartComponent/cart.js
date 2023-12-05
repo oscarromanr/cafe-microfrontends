@@ -95,11 +95,18 @@ export class Cart extends HTMLElement {
     }
 
     #renderCartProduct(product){
+        let imageUrl = null;
+        if (product.imagenurl.includes('http')) {
+            imageUrl = product.imagenurl;
+        } else {
+            imageUrl = `../../img/${product.imagenurl}`;
+        }
+
         return `
         <div class="justify-between mb-6 rounded-lg bg-brown-25 p-6 shadow-md sm:flex sm:justify-start">
             <div class="sm:w-36 md:mr-2 w-full hover:scale-110 transition-all duration-200">
                 <a href="product-detail.html?id=${product._id}">
-                    <img src="../../img/${product.imagenurl}" alt="product-image" class="rounded-lg"/>
+                    <img src="${imageUrl}" referrerpolicy="no-referrer" alt="product-image" class="rounded-lg"/>
                 </a>
             </div>    
             

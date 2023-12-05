@@ -109,6 +109,7 @@ export class ServicioUsuario {
             return null;
         }
     }
+
     async cambiarPassword(usuarioId, token, password) {
         try {
             let response = await fetch(this.#urlUsuario + usuarioId, {
@@ -145,21 +146,4 @@ export class ServicioUsuario {
         }
     }
 
-    async eliminarUsuario(id){
-        try {
-            const token = this.#cookie.getCookie('Cafe');
-            let response = await fetch(this.#urlUsuario + id, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                }
-            });
-            let json = await response.json();
-            return json;
-        } catch (error) {
-            console.log('Error al eliminar usuario: ', error);
-            return null;
-        }
-    }
 }
