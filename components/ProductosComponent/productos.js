@@ -123,10 +123,17 @@ export class Productos extends HTMLElement {
     }
 
     #renderCard(producto) {
+        let imageUrl = null;
+        if (producto.imagenurl.includes('http')) {
+            imageUrl = producto.imagenurl;
+        } else {
+            imageUrl = `../../img/${producto.imagenurl}`;
+        }
+
         return `
             <div class="w-72 bg-brown-25 shadow-md rounded-xl duration-300 hover:scale-105 hover:shadow-xl">
                 <a href="product-detail.html?id=${producto._id}">
-                    <img src="../../img/${producto.imagenurl}" alt="Producto" class="h-80 w-72 object-cover rounded-t-xl" />
+                    <img src="${imageUrl}" referrerpolicy="no-referrer" alt="Producto" class="h-80 w-72 object-cover rounded-t-xl" />
                     <div class="px-4 py-3 w-72 font-helvetica">
                         <span class="text-brown-300 text-opacity-70 mr-3 uppercase text-xs">${producto.categoria}</span>
                         <p class="text-lg font-bold text-brown-300 truncate block capitalize">${producto.nombre}</p>
